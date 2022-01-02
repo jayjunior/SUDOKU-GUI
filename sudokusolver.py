@@ -55,7 +55,9 @@ def is_valid(possibility, sudoku, row, col):
 
     for rows in range(starting_row, starting_row+3):
         for cols in range(starting_col, starting_col+3):
-            if sudoku[rows][cols] == possibility and rows != row and col != col:
+            if rows == row and cols == col:
+                continue
+            if sudoku[rows][cols] == possibility:
                 return False
     return True
 

@@ -2,7 +2,6 @@ import sys
 from PyQt5.QtWidgets import QApplication, QGridLayout, QHBoxLayout, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLabel,QMessageBox
 from PyQt5.QtCore import Qt as al , pyqtSlot
 from sudokusolver import solve_sudoku
-import numpy
 
 
 
@@ -64,53 +63,60 @@ class MainWindow(QMainWindow):
             dlg.exec()
 
     def generate_random_sudoku(self):
-        self.sudoku = []
-        row = [0,1,2,3,4,5,6,7,8,9]
-        for i in range(0,9):
-            self.sudoku.append(numpy.random.permutation(row))
-        print(self.sudoku)
+
+        # Shoot out to @https://stackoverflow.com/users/5237560/alain-t for this awesome generator !!
+
+        base  = 3
+        side  = base*base
+        
+        # pattern for a baseline valid solution
+        def pattern(r,c): return (base*(r%base)+r//base+c)%side
+        
+        # randomize rows, columns and numbers (of valid base pattern)
+        from random import sample
+        def shuffle(s): return sample(s,len(s)) 
+
+        rBase = range(base) 
+        rows  = [ g*base + r for g in shuffle(rBase) for r in shuffle(rBase) ] 
+        cols  = [ g*base + c for g in shuffle(rBase) for c in shuffle(rBase) ]
+        nums  = shuffle(range(1,base*base+1))
+        
+        # produce board using randomized baseline pattern
+        self.sudoku = [ [nums[pattern(r,c)] for c in cols] for r in rows ]
+        squares = side*side
+        empties = squares * 3//4
+        for p in sample(range(squares),empties):
+            self.sudoku[p//side][p%side] = 0
+
         self.create_grid(None)
+
 
     @pyqtSlot()
     def solve(self):
-        if(not self.is_valid(self.sudoku)):
-            self.create_dialog_box("Oups this one cannot be solved !!")
-            return
         moves = solve_sudoku(self.sudoku)
-        if moves == None:
-            self.create_dialog_box("This have no Solutions")
-            return
-        elif len(moves) == 0:
+        if len(moves) == 0:
             self.create_dialog_box("This have Already been solved you dumb")
             return
         for move in moves:
             self.create_grid([move[0],move[1],move[2]])
             self.sudoku[move[0]][move[1]] = move[2]
 
-    def is_valid(self,sudoku):
-        for row in sudoku:
-            for col in row:
-                if col == 0:
-                    return True
-        return False
 
-
-
-sudoku = [
-    [2, 5, 6, 4, 8, 0, 1, 7, 3],
-    [3, 7, 4, 6, 1, 5, 9, 8, 2],
-    [9, 8, 1, 7, 2, 3, 4, 5, 6],
-    [5, 9, 3, 2, 7, 4, 8, 6, 1],
-    [0, 1, 2, 8, 0, 6, 5, 4, 9],
-    [4, 6, 8, 5, 9, 1, 3, 2, 7],
-    [6, 3, 5, 1, 4, 7, 2, 0, 8],
-    [1, 2, 7, 9, 5, 8, 6, 3, 4],
-    [8, 4, 0, 3, 6, 2, 7, 1, 5]
+initial_sudoku = [
+    [0,0,2,0,3,0,0,0,8],
+    [0,0,0,0,0,8,0,0,0],
+    [0,3,1,0,2,0,0,0,0],
+    [0,6,0,0,5,0,2,7,0],
+    [0,1,0,0,0,0,0,5,0],
+    [2,0,4,0,6,0,0,3,1],
+    [0,0,0,0,8,0,6,0,5],
+    [0,0,0,0,0,0,0,1,3],
+    [0,0,5,3,1,0,4,0,0]
 ]
 
 
 app = QApplication(sys.argv)
-window = MainWindow(sudoku)
+window = MainWindow(initial_sudoku)
 window.show()
 app.exec()
 app.quit()
