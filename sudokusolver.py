@@ -1,11 +1,4 @@
 
-import sudokuGui
-
-# TODO:
-# implement generate_random_sudoku
-# implement solve_sudoku
-
-
 """
     solve the given sudoku
 """
@@ -26,10 +19,6 @@ def solve_sudoku(sudoku):
         revert(sudoku, empty_cells[0], empty_cells[1])
 
     return None
-
-
-def is_final(sudoku):
-    pass
 
 
 def get_next_empty_cell(sudoku):
@@ -71,16 +60,5 @@ def is_valid(possibility, sudoku, row, col):
     return True
 
 
-sudoku = [
-    [2, 5, 6, 4, 8, 9, 1, 7, 3],
-    [3, 7, 4, 6, 1, 5, 9, 8, 2],
-    [9, 8, 1, 7, 2, 3, 4, 5, 6],
-    [5, 9, 3, 2, 7, 4, 8, 6, 1],
-    [7, 1, 2, 8, 0, 6, 5, 4, 9],
-    [4, 6, 8, 5, 9, 1, 3, 2, 7],
-    [6, 3, 5, 1, 4, 7, 2, 9, 8],
-    [1, 2, 7, 9, 5, 8, 6, 3, 4],
-    [8, 4, 9, 3, 6, 2, 7, 1, 5]
-]
 
 

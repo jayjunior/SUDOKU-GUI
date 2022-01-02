@@ -1,9 +1,9 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QGridLayout, QHBoxLayout, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLabel,QMessageBox
 from PyQt5.QtCore import Qt as al , pyqtSlot
-from PyQt5.QtGui import QPalette, QColor
-import time
 from sudokusolver import solve_sudoku
+import numpy
+
 
 
 class MainWindow(QMainWindow):
@@ -64,22 +64,18 @@ class MainWindow(QMainWindow):
             dlg.exec()
 
     def generate_random_sudoku(self):
-        print("clicked")
-        self.sudoku = [
-        [2, 5, 6, 4, 8, 0, 1, 7, 3],
-        [3, 7, 4, 6, 1, 5, 9, 8, 2],
-        [9, 8, 1, 7, 2, 3, 4, 5, 6],
-        [5, 9, 3, 2, 7, 4, 8, 6, 1],
-        [0, 1, 2, 8, 0, 6, 5, 4, 9],
-        [4, 6, 8, 5, 9, 1, 3, 2, 7],
-        [6, 3, 5, 1, 4, 7, 2, 0, 8],
-        [1, 2, 7, 9, 5, 8, 6, 3, 4],
-        [8, 4, 0, 3, 6, 2, 7, 1, 5]
-                    ]  
+        self.sudoku = []
+        row = [0,1,2,3,4,5,6,7,8,9]
+        for i in range(0,9):
+            self.sudoku.append(numpy.random.permutation(row))
+        print(self.sudoku)
         self.create_grid(None)
 
     @pyqtSlot()
     def solve(self):
+        if(not self.is_valid(self.sudoku)):
+            self.create_dialog_box("Oups this one cannot be solved !!")
+            return
         moves = solve_sudoku(self.sudoku)
         if moves == None:
             self.create_dialog_box("This have no Solutions")
@@ -91,15 +87,13 @@ class MainWindow(QMainWindow):
             self.create_grid([move[0],move[1],move[2]])
             self.sudoku[move[0]][move[1]] = move[2]
 
-class Color(QWidget):
+    def is_valid(self,sudoku):
+        for row in sudoku:
+            for col in row:
+                if col == 0:
+                    return True
+        return False
 
-    def __init__(self, color):
-        super(Color, self).__init__()
-        self.setAutoFillBackground(True)
-
-        palette = self.palette()
-        palette.setColor(QPalette.Window, QColor(color))
-        self.setPalette(palette)
 
 
 sudoku = [
